@@ -1,0 +1,75 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python preprocess.py
+    deps:
+    - path: data/raw/heart.csv
+      hash: md5
+      md5: 6481ed154d5b8ff83d7c09007aaa6ed0
+      size: 38114
+    - path: preprocess.py
+      hash: md5
+      md5: bcf4352823217f0d8420576aada568b2
+      size: 3522
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 79d67a8350fdee00b3534cc4fd8422d2
+      size: 2396
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 2abe349557dde0c032b7a9ef958e4bfb
+      size: 9232
+  train:
+    cmd: python train.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 2abe349557dde0c032b7a9ef958e4bfb
+      size: 9232
+    - path: train.py
+      hash: md5
+      md5: 524d12f58aa7a3f58725f0a28901c03c
+      size: 3104
+    params:
+      params.yaml:
+        train.max_depth: 10
+        train.n_estimators: 100
+        train.random_state: 42
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 16d931065ba067ccf2fb7bfd4e8130ca
+      size: 678305
+    - path: models/scaler.pkl
+      hash: md5
+      md5: 1deae2fe13b7824801dadf2b40417b88
+      size: 948
+  validate:
+    cmd: python validate.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 79d67a8350fdee00b3534cc4fd8422d2
+      size: 2396
+    - path: models/model.pkl
+      hash: md5
+      md5: 16d931065ba067ccf2fb7bfd4e8130ca
+      size: 678305
+    - path: models/scaler.pkl
+      hash: md5
+      md5: 1deae2fe13b7824801dadf2b40417b88
+      size: 948
+    - path: validate.py
+      hash: md5
+      md5: 7bb2793493b1b7b7a841bbf062c4644e
+      size: 4313
+    outs:
+    - path: metrics/confusion_matrix.png
+      hash: md5
+      md5: 7b879c6ab29cb9d101a34c654dd34357
+      size: 81544
+    - path: metrics/metrics.json
+      hash: md5
+      md5: bb2dfc61d9b865b59840cc85aa1d152b
+      size: 186

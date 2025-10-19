@@ -81,7 +81,7 @@ def split_data(df, test_size=0.2, random_state=42):
 
 def main():
     # Configuration
-    raw_data_path = "data/raw/dataset.csv"
+    raw_data_path = "data/raw/heart.csv"
     train_output_path = "data/processed/train.csv"
     test_output_path = "data/processed/test.csv"
     

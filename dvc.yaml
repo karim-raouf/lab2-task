@@ -2,7 +2,7 @@ stages:
   preprocess:
     cmd: python preprocess.py
     deps:
-      - data/raw/dataset.csv
+      - data/raw/heart.csv
       - preprocess.py
     outs:
       - data/processed/train.csv
