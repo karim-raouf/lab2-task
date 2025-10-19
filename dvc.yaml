@@ -1,0 +1,39 @@
+stages:
+  preprocess:
+    cmd: python preprocess.py
+    deps:
+      - data/raw/dataset.csv
+      - preprocess.py
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+    desc: "Load raw data, clean, encode features, and split into train/test sets"
+
+  train:
+    cmd: python train.py
+    deps:
+      - data/processed/train.csv
+      - train.py
+    params:
+      - train.n_estimators
+      - train.max_depth
+      - train.random_state
+    outs:
+      - models/model.pkl
+      - models/scaler.pkl
+    desc: "Train a Random Forest classifier on the training data"
+
+  validate:
+    cmd: python validate.py
+    deps:
+      - data/processed/test.csv
+      - models/model.pkl
+      - models/scaler.pkl
+      - validate.py
+    metrics:
+      - metrics/metrics.json:
+          cache: false
+    plots:
+      - metrics/confusion_matrix.png:
+          cache: false
+    desc: "Evaluate the model on test data and generate metrics and plots"
