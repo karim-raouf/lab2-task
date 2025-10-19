@@ -1,13 +1,18 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import pickle
 import os
 import yaml
 
 def load_params():
-    """Load parameters from params.yaml"""
+    """Load parameters from params.yaml
+    
+    This function reads the params.yaml file and extracts the 'train' section.
+    DVC tracks these parameters in dvc.yaml under the 'params' field.
+    When these values change, DVC will automatically re-run the train stage.
+    """
     try:
         with open('params.yaml', 'r') as f:
             params = yaml.safe_load(f)
@@ -15,8 +20,9 @@ def load_params():
     except FileNotFoundError:
         print("params.yaml not found. Using default parameters.")
         return {
-            'n_estimators': 100,
-            'max_depth': 10,
+            'C': 1.0,
+            'max_iter': 1000,
+            'solver': 'lbfgs',
             'random_state': 42
         }
 
@@ -40,15 +46,15 @@ def prepare_features(df):
     return X_scaled, y, scaler
 
 def train_model(X, y, params):
-    """Train a Random Forest classifier"""
-    print("Training Random Forest model...")
+    """Train a Logistic Regression classifier"""
+    print("Training Logistic Regression model...")
     print(f"Parameters: {params}")
     
-    model = RandomForestClassifier(
-        n_estimators=params.get('n_estimators', 100),
-        max_depth=params.get('max_depth', 10),
-        random_state=params.get('random_state', 42),
-        n_jobs=-1
+    model = LogisticRegression(
+        C=params.get('C', 1.0),
+        max_iter=params.get('max_iter', 1000),
+        solver=params.get('solver', 'lbfgs'),
+        random_state=params.get('random_state', 42)
     )
     
     model.fit(X, y)
@@ -90,14 +96,14 @@ def main():
     save_model(model, scaler)
     
     # Print feature importance
-    if hasattr(model, 'feature_importances_'):
-        print("\nTop 10 Feature Importances:")
+    if hasattr(model, 'coef_'):
+        print("\nTop 10 Feature Coefficients:")
         feature_names = train_df.columns[:-1]
-        importances = pd.DataFrame({
+        coefficients = pd.DataFrame({
             'feature': feature_names,
-            'importance': model.feature_importances_
-        }).sort_values('importance', ascending=False)
-        print(importances.head(10).to_string(index=False))
+            'coefficient': model.coef_[0] if len(model.coef_.shape) > 1 else model.coef_
+        }).sort_values('coefficient', ascending=False, key=abs)
+        print(coefficients.head(10).to_string(index=False))
     
     print("\nTraining pipeline completed successfully!")
 

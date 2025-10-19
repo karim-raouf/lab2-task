@@ -15,13 +15,14 @@ stages:
       - data/processed/train.csv
       - train.py
     params:
-      - train.n_estimators
-      - train.max_depth
+      - train.C
+      - train.max_iter
+      - train.solver
       - train.random_state
     outs:
       - models/model.pkl
       - models/scaler.pkl
-    desc: "Train a Random Forest classifier on the training data"
+    desc: "Train a Logistic Regression classifier on the training data"
 
   validate:
     cmd: python validate.py
